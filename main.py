@@ -73,3 +73,4 @@ if __name__ == "__main__":
 #Create Text Draw Position
 #Create Logic for Automation
 #Scape Bibleverse and quotations
+#fix git
