@@ -3,7 +3,8 @@ import requests, json, shutil, os, textwrap, random, json
 from PIL import Image, ImageDraw, ImageFont
 #from unsplash.api import Api
 #from unsplash.auth import Auth
-SOTD = "May the God of hope fill you will al joy and peace as you trust in him, so that you may overflow with hope by the power of the Holy Spirit"
+SOTD = "May the God of hope fill you with all joy and peace as you trust in him, so that you may overflow with hope by the power of the Holy Spirit."
+verse = "Romans 15:13"
 
 def getBingPic():
     #gets image line and 
@@ -25,11 +26,12 @@ def downloadImage(image_url):
         r.raw.decode_content = True      
         with open (filename_final,'wb') as f:
             shutil.copyfileobj(r.raw, f)
+        return filename_final
         print("Image downloaded")
     else:
-        print("Fix yo code")
+        print("Error")
         
-def scaleImage(image):
+def scaleImage(image):#logic for image scalling not need for Bing pictures (incomplete)
     width, height = image.size
     if width > 1024:
         scale = (1024/width)
@@ -37,18 +39,18 @@ def scaleImage(image):
     imageScaled = image.resize(resize(xfactor), resample=0) #sets new image size to the variable image2 
     return imageScaled
 
-def darkenImage(image):
-    image.point(lambda p: p * 0.8) #Darkens the image(higher the value the lighter the image)
-    
-def drawText(photo):
-    picture = Image.open("20200808 - It's ∞ Day!.png")
-    draw = ImageDraw.Draw(picture) #initialise the drawing context with; the image object as background
+def darkenImage(image):#Darkens the image(higher the value the lighter the image)
+    picture = image.point(lambda p: p * 0.65) 
+    return picture
+
+def drawText(photo,filename):
+    draw = ImageDraw.Draw(photo) #initialise the drawing context with; the image object as background
     font = ImageFont.truetype('/usr/share/fonts/truetype/ubuntu/Ubuntu-L.ttf', size=40)#create font object with the font file and specify
-    (wImage, hImage) = (picture.size) #returns the dimensions of the given picture
+    (wImage, hImage) = (photo.size) #returns the dimensions of the given picture
     
     message = "May the God of hope fill you will all joy and peace as you trust in him, so that you may overflow with hope by the power of the Holy Spirit"  #Displays desired quotations/scripture/text
     msg = textwrap.wrap(message, width=50) #width dermines the margins 
-    color = 'rgb(255, 255, 255)' # sets color to white
+    color = 'rgb(255, 255, 255)' #sets color to white
 
     current_h, pad = hImage/2, 25 #(Gets Image Height,leading)
     for line in msg: #draw the message(scripture) on the background
@@ -56,21 +58,30 @@ def drawText(photo):
         draw.text(((wImage-wMsg)/2, current_h), line, fill=color, font=font)
         current_h += hMsg + pad
 
-    picture.save('test.png') #saves the image
+    # draws the source 10 pixels lower than the message
+    name = verse
+    wVerse = draw.textsize(verse, font=font)
+    (x, y) = ((wImage-wVerse[0])/2), current_h+10
+    color = 'rgb(255, 255, 255)' # white color
+    draw.text((x, y), f"-{name}", fill=color, font=font)
 
+    photo.save(f"wallpaper_output/[Edited]-{filename}") #saves the image
 
 def main():
-    image = Image.open("20200808 - It's ∞ Day!.png")
-    dark = darkenImage(image)
-    drawImage(dark)
+    bing_picture = downloadImage(getBingPic())
+    image = Image.open(bing_picture)
+    dark_image = darkenImage(image)
+    drawText(dark_image,str(bing_picture))
+
+downloadImage(getBingPic())
 
 if __name__ == "__main__":
-    pass
-    #main()   
+    main()   
+
 #TODO:
 #Create Unsplash connection
-#Integrate Darken and Text Draw functions
 #Create Text Draw Position
 #Create Logic for Automation
 #Scape Bibleverse and quotations
+#add clean up function
 #fix git
